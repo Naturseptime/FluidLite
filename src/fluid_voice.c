@@ -936,6 +936,7 @@ int calculate_hold_decay_buffers(fluid_voice_t* voice, int gen_base,
    * GEN_KEYTOVOLENVDECAY, GEN_KEYTOMODENVHOLD, GEN_KEYTOMODENVDECAY
    */
 
+  fluid_real_t keysteps;
   fluid_real_t timecents;
   fluid_real_t seconds;
   int buffers;
@@ -947,7 +948,8 @@ int calculate_hold_decay_buffers(fluid_voice_t* voice, int gen_base,
    * will cause (60-72)*100=-1200 timecents of time variation.
    * The time is cut in half.
    */
-  timecents = (_GEN(voice, gen_base) + _GEN(voice, gen_key2base) * (60.0 - voice->key));
+  keysteps = 60.0f - fluid_channel_get_key_pitch(voice->channel, voice->key) / 100.0f;
+  timecents = _GEN(voice, gen_base) + _GEN(voice, gen_key2base) * keysteps;
 
   /* Range checking */
   if (is_decay){

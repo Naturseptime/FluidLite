@@ -24,6 +24,8 @@
 
 #include "fluid_defsfont.h"
 #include "fluid_sfont.h"
+#include "fluid_synth.h"
+#include "fluid_chan.h"
 /* Todo: Get rid of that 'include' */
 #include "fluid_sys.h"
 
@@ -809,6 +811,24 @@ fluid_defpreset_noteon(fluid_defpreset_t* preset, fluid_synth_t* synth, int chan
   fluid_mod_t * mod_list[FLUID_NUM_MOD]; /* list for 'sorting' preset modulators */
   int mod_list_count;
   int i;
+  int tuned_key;
+
+  /* For detuned channels it might be better to use another key for Soundfont sample selection
+   * giving better approximations for the pitch than the original key.
+   * Example: play key 60 on 6370 Hz => use tuned key 64 for sample selection
+   *
+   * This feature is only enabled for melodic channels.
+   * For drum channels we always select Soundfont samples by key numbers.
+   */
+
+  if(synth->channel[chan]->banknum != DRUM_INST_BANK)
+  {
+    tuned_key = (int)(fluid_channel_get_key_pitch(synth->channel[chan], key) / 100.0f + 0.5f);
+  }
+  else
+  {
+    tuned_key = key;
+  }
 
   global_preset_zone = fluid_defpreset_get_global_zone(preset);
 
@@ -818,7 +838,7 @@ fluid_defpreset_noteon(fluid_defpreset_t* preset, fluid_synth_t* synth, int chan
 
     /* check if the note falls into the key and velocity range of this
        preset */
-    if (fluid_preset_zone_inside_range(preset_zone, key, vel)) {
+    if (fluid_preset_zone_inside_range(preset_zone, tuned_key, vel)) {
 
       inst = fluid_preset_zone_get_inst(preset_zone);
       global_inst_zone = fluid_inst_get_global_zone(inst);
@@ -837,7 +857,7 @@ fluid_defpreset_noteon(fluid_defpreset_t* preset, fluid_synth_t* synth, int chan
 	/* check if the note falls into the key and velocity range of this
 	   instrument */
 
-	if (fluid_inst_zone_inside_range(inst_zone, key, vel) && (sample != NULL)) {
+	if (fluid_inst_zone_inside_range(inst_zone, tuned_key, vel) && (sample != NULL)) {
 
 	  /* this is a good zone. allocate a new synthesis process and
              initialize it */

@@ -95,6 +95,7 @@ int fluid_channel_get_cc(fluid_channel_t* chan, int num);
 int fluid_channel_get_num(fluid_channel_t* chan);
 void fluid_channel_set_interp_method(fluid_channel_t* chan, int new_method);
 int fluid_channel_get_interp_method(fluid_channel_t* chan);
+fluid_real_t fluid_channel_get_key_pitch(fluid_channel_t *chan, int key);
 
 #define fluid_channel_get_key_pressure(chan, key) \
   ((chan)->key_pressure[key])

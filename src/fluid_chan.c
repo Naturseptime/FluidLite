@@ -453,3 +453,24 @@ int fluid_channel_set_sfontnum(fluid_channel_t* chan, unsigned int sfontnum)
   chan->sfontnum = sfontnum;
   return FLUID_OK;
 }
+
+/**
+ * Compute the pitch for a key after applying Fluidsynth's tuning functionality
+ * and channel coarse/fine tunings.
+ * @param chan fluid_channel_t
+ * @param key MIDI note number (0-127)
+ * @return the pitch of the key
+ */
+fluid_real_t fluid_channel_get_key_pitch(fluid_channel_t *chan, int key)
+{
+  if(chan->tuning)
+  {
+    return fluid_tuning_get_pitch(chan->tuning, key)
+      + 100.0f * fluid_channel_get_gen(chan, GEN_COARSETUNE)
+      + fluid_channel_get_gen(chan, GEN_FINETUNE);
+  }
+  else
+  {
+    return key * 100.0f;
+  }
+}
